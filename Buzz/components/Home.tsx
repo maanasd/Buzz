@@ -1,8 +1,5 @@
 /**
  * Buzz Password Manager
- * https://github.com/facebook/react-native
- *
- * @format
  */
 
 import React, { useEffect } from 'react';
@@ -17,13 +14,6 @@ import {
     View,
 } from 'react-native';
 
-import {
-    Colors,
-    DebugInstructions,
-    Header,
-    LearnMoreLinks,
-    ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
 import customTheme from '../buzzTheme';
 import {
     FAB, Provider as PaperProvider, Appbar, List,
@@ -34,6 +24,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import PassCard from './PassCard';
 import DatabaseHandler from '../model/Credential';
 import Notification from './Notification';
+import { StackActions } from '@react-navigation/routers';
 
 type EditData = {
     url: string;
@@ -48,7 +39,7 @@ type AddData = {
     password: string;
 }
 
-function Home(): JSX.Element {
+function Home({navigation}:{navigation:any}): JSX.Element {
     const [visible, setVisible] = React.useState<boolean>(false);
     const [deleteVisible, setDeleteVisible] = React.useState<boolean>(false);
     const [deleteId, setDeleteId] = React.useState<number>(-1);
@@ -90,13 +81,9 @@ function Home(): JSX.Element {
     function hideEditModal() {
         setEditVisible(false);
         setEditData({ url: '', username: '', password: '', id: -1 });
-        // setUrlEditText('');
-        // setUsernameEditText('');
-        // setPasswordEditText('');
     }
 
     function showEditModal(editData: EditData) {
-        // setDeleteId(id);
         setEditData(editData);
         setEditVisible(true);
     }
@@ -159,9 +146,13 @@ function Home(): JSX.Element {
             <SafeAreaView style={styles.container}>
                 <Appbar style={styles.appBar}>
 
-                    <Appbar.Content title="Buzz Password Manager" />
+                    <Appbar.Content color={customTheme.colors.primary} title="Buzz" />
+
                     {/* TODO: BLE sync feature coming in next release  */}
-                    {/* <Icon name="bluetooth" size={24} style={styles.appBarIcon} /> */}
+                    {/* <Icon color={customTheme.colors.primary} name="logout" size={24} style={styles.appBarIcon} /> */}
+                    <IconButton iconColor={customTheme.colors.primary} icon="logout" size={24} onPress={() => {
+                        navigation.dispatch(StackActions.popToTop())
+                     }} />
 
                 </Appbar>
                 <Searchbar onChangeText={filterCredential} style={styles.searchBar} placeholder='Search for credentials' value={searchText} />
@@ -247,10 +238,10 @@ const styles = StyleSheet.create({
     },
     appBar: {
         flexDirection: 'row',
+        backgroundColor: '#F2CD5D',
     },
     appBarIcon: {
-        marginRight: 8,
-        color: 'blue'
+        marginRight: 8
     },
     containerStyle: {
         backgroundColor: 'white',

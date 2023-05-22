@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
-import { Button, TextInput, Provider as PaperProvider } from "react-native-paper";
+import { Button, TextInput, Provider as PaperProvider, Text } from "react-native-paper";
 import {
     View,
     SafeAreaView,
     StyleSheet,
+    Image
 } from 'react-native';
 import customTheme from '../buzzTheme';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -59,6 +60,8 @@ function Login({ navigation }: Props): JSX.Element {
         <PaperProvider theme={customTheme}>
             <SafeAreaView>
                 <View style={styles.loginContainer}>
+                    <Text variant='headlineMedium' style={styles.buzzTitle}>Buzz Password Manager</Text>
+                    <Image style={styles.displayLogo} source={require('../image/Buzz-logo.png')} />
                     <TextInput value={masterKey} onChangeText={setMasterKey} placeholder='Enter Master Key' label="Master Key" secureTextEntry={true} />
                     <Button style={styles.loginBtn} mode='contained' onPress={() => handleAccess(navigation, masterKey)}>{btnText}</Button>
                 </View>
@@ -71,11 +74,22 @@ function Login({ navigation }: Props): JSX.Element {
 }
 const styles = StyleSheet.create({
 
+    buzzTitle:{
+        color: customTheme.colors.primary,
+        alignSelf: 'center', 
+    },
     loginContainer: {
         margin: 20
     },
+    displayLogo:{
+        width: 200,
+        height: 200,
+        margin: 20,
+        alignSelf: 'center'
+    },
     loginBtn: {
-        margin: 20
+        margin: 20,
+        backgroundColor: customTheme.colors.inversePrimary
     }
 });
 

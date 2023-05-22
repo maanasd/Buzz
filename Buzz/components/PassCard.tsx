@@ -18,6 +18,7 @@ const styles = StyleSheet.create({
         borderColor: 'black',
         margin: 8,
         flexDirection: 'row',
+
     },
     content: {
         flexDirection: 'row',

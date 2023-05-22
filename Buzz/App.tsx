@@ -16,13 +16,13 @@ type StackParamList = {
 };
 
 const Stack = createNativeStackNavigator<StackParamList>();
-const DEBUG_MODE = true; // set this flag for debugging purposes
+const DEBUG_MODE = false; // set this flag for debugging purposes
 function App(): JSX.Element {
 
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen options={{title:"Access"}}  name="Login" component={Login} />
         <Stack.Screen options={{headerShown: DEBUG_MODE}} name="Home" component={Home} />
       </Stack.Navigator>
     </NavigationContainer>
