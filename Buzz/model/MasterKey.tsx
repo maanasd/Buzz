@@ -1,4 +1,3 @@
-import React from 'react';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import md5 from 'md5';
 
@@ -16,14 +15,13 @@ class MasterKey {
             });
     }
 
-    static getMasterKey(): Promise<string|void|null> {
-        return EncryptedStorage.getItem('masterKey')
-            .then((masterKey) => {
-                return masterKey;
-            })
-            .catch((err) => {
-                console.log(err);
-            });
+    static async getMasterKey(): Promise<string|void|null> {
+        try {
+            const masterKey = await EncryptedStorage.getItem('masterKey');
+            return masterKey;
+        } catch (err) {
+            console.log(err);
+        }
     }
 }
 
