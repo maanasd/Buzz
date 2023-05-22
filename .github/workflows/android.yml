@@ -26,4 +26,4 @@ jobs:
     - name: install npm packages
       run: cd .. && npm install
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./gradlew :app:bundleRelease
