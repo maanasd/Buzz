@@ -25,6 +25,8 @@ import PassCard from './PassCard';
 import DatabaseHandler from '../model/Credential';
 import Notification from './Notification';
 import { StackActions } from '@react-navigation/routers';
+import Encryption from '../model/Encryption';
+
 
 type EditData = {
     url: string;
@@ -52,10 +54,15 @@ function Home({navigation}:{navigation:any}): JSX.Element {
     const [editVisible, setEditVisible] = React.useState<boolean>(false);
     const [eyeIcon, setEyeIcon] = React.useState('eye');
     const [visibleEye, setVisibleEye] = React.useState<boolean>(true);
+    const [encryptionKey, setEncryptionKey] = React.useState<string>('');
     const db = new DatabaseHandler();
     useEffect(() => {
-        db.createTable();
-        db.getAllData((data: any) => setPassData(data));
+        Encryption.getKey().then((key) => {
+            setEncryptionKey(key!);
+            db.createTable();
+            db.getAllData((data: any) => setPassData(data), key!);
+        });
+
     }, []);
 
     const showModal = () => setVisible(true);
@@ -103,29 +110,33 @@ function Home({navigation}:{navigation:any}): JSX.Element {
     function filterCredential(text: string): void {
         setSearchText(text);
         if (text === '')
-            db.getAllData((data: any) => setPassData(data));
+            db.getAllData((data: any) => setPassData(data), encryptionKey);
         else {
-            db.filterData(text, (data: any) => setPassData(data));
+            db.filterData(text, (data: any) => setPassData(data), encryptionKey);
         }
 
     }
 
-    function editCredential(): void {
+    async function editCredential(): Promise<void> {
         if (Object.values(editData).includes('')) {
             setSnackbarVisible(true);
             return;
         }
-        db.updateData(editData.id, editData.url, editData.username, editData.password);
+        const encryptedPassword = JSON.stringify(await Encryption.encryptData(editData.password, encryptionKey));
+        db.updateData(editData.id, editData.url, editData.username, encryptedPassword);
         filterCredential(searchText);
         hideEditModal();
     }
 
-    function addCredential(url: string, username: string, password: string): void {
+    async function addCredential(url: string, username: string, password: string): Promise<void> {
         if (url === '' || username === '' || password === '') {
             setSnackbarVisible(true);
             return;
         }
-        db.insertData(url, username, password);
+        // console.log(encryptionKey);
+        const encryptedPassword = JSON.stringify(await Encryption.encryptData(password, encryptionKey));
+        // console.log(encryptedPassword);
+        db.insertData(url, username, encryptedPassword);
         filterCredential(searchText);
         hideModal();
         setAddData({ url: '', username: '', password: '' });
@@ -184,7 +195,7 @@ function Home({navigation}:{navigation:any}): JSX.Element {
                             <IconButton style={styles.viewIcon} iconColor='black' icon={eyeIcon} size={24} onPress={() => viewPass()} />
                         </View>
 
-                        <Button buttonColor={customTheme.colors.inversePrimary} style={styles.containerBtn} mode="contained" onPress={() => addCredential(addData.url, addData.username, addData.password)}> Add </Button>
+                        <Button buttonColor={customTheme.colors.inversePrimary} style={styles.containerBtn} mode="contained" onPress={async () => await addCredential(addData.url, addData.username, addData.password)}> Add </Button>
                         <Button style={styles.containerBtn} mode="contained" onPress={() => hideModal()}> Cancel </Button>
                     </Modal>
                     <Notification
@@ -212,7 +223,7 @@ function Home({navigation}:{navigation:any}): JSX.Element {
                             <IconButton style={styles.viewIcon} iconColor='black' icon={eyeIcon} size={24} onPress={() => viewPass()} />
                         </View>
 
-                        <Button buttonColor={customTheme.colors.inversePrimary} style={styles.containerBtn} mode="contained" onPress={() => editCredential()}> Save </Button>
+                        <Button buttonColor={customTheme.colors.inversePrimary} style={styles.containerBtn} mode="contained" onPress={async () => await editCredential()}> Save </Button>
                         <Button style={styles.containerBtn} mode="contained" onPress={() => hideEditModal()}> Cancel </Button>
                     </Modal>
                 </Portal>

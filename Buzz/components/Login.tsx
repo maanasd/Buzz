@@ -11,6 +11,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import MasterKey from '../model/MasterKey';
 import md5 from 'md5';
 import Notification from './Notification';
+import Encryption from '../model/Encryption';
 // add type safety to navigation props
 type StackParamList = {
     Login: undefined;
@@ -36,8 +37,17 @@ function Login({ navigation }: Props): JSX.Element {
         MasterKey.getMasterKey().then((key) => {
             if (key === null) {
                 MasterKey.storeMasterKey(masterKey);
+                // generate encryption key
+                Encryption.generateKey(masterKey, md5(masterKey), 1000, 256).then((aesKey) => {
+                    // store encryption key
+                    Encryption.storeKey(aesKey);
+                });
                 navigation.navigate('Home');
             } else if (key === md5(masterKey)) {
+                Encryption.generateKey(masterKey, md5(masterKey), 1000, 256).then((aesKey) => {
+                    // store encryption key
+                    Encryption.storeKey(aesKey);
+                });
                 navigation.navigate('Home');
             } else {
                 setVisible(true);

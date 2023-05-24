@@ -1,4 +1,5 @@
 import SQLite from 'react-native-sqlite-storage';
+import Encryption from './Encryption';
 // SQLite.DEBUG(true);
 SQLite.enablePromise(false);
 
@@ -12,10 +13,16 @@ const database_size = 200000;
 
 class DatabaseHandler {
     public db: SQLite.SQLiteDatabase;
+    public encryptionKey: string = '';
     constructor() {
         // open database
         this.db = SQLite.openDatabase({ name: database_name, location:'default' }, this.openCB, this.errorCB);
-        // console.log(SQLite);
+    }
+    setEncryptionKey(key: string) {
+        this.encryptionKey = key;
+    }
+    getEncryptionKey(): string {
+        return this.encryptionKey;
     }
 
     openCB() {
@@ -43,21 +50,38 @@ class DatabaseHandler {
         });
     }
 
-    getAllData(callback: (data: any) => void) {
+    getAllData(callback: (data: any) => void, encryptionKey: string) {
         // without promise
         this.db.transaction((tx: SQLite.Transaction) => { 
-            tx.executeSql('SELECT * FROM Creds ORDER BY id DESC', [], (tx: SQLite.Transaction, results: SQLite.ResultSet) => {
-                callback(results.rows.raw());
+            tx.executeSql('SELECT * FROM Creds ORDER BY id DESC', [], async (tx: SQLite.Transaction, results: SQLite.ResultSet) => {
+                const result = await Promise.all((results.rows.raw()).map(async (item: any) => {
+                    return {
+                        id: item.id,
+                        url: item.url,
+                        username: item.username,
+                        password: await Encryption.decryptData(JSON.parse(item.password), encryptionKey)
+                    }
+                }));
+
+                callback(result);
             });
         }, this.errorCB, this.successCB);
 
     }
-    filterData(query: string, callback: (data: any) => void) {  
+    filterData(query: string, callback: (data: any) => void, encryptionKey: string) {  
         // search for matching url or username
         this.db.transaction((tx: SQLite.Transaction) => {   
-            tx.executeSql('SELECT * FROM Creds WHERE url LIKE ? OR username LIKE ?', ['%'+query+'%', '%'+query+'%'], (tx: SQLite.Transaction, results: SQLite.ResultSet) => {
-                // console.log(results.rows.raw());
-                callback(results.rows.raw());
+            tx.executeSql('SELECT * FROM Creds WHERE url LIKE ? OR username LIKE ?', ['%'+query+'%', '%'+query+'%'], async (tx: SQLite.Transaction, results: SQLite.ResultSet) => {
+                const result = await Promise.all((results.rows.raw()).map(async (item: any) => {
+                    return {
+                        id: item.id,
+                        url: item.url,
+                        username: item.username,
+                        password: await Encryption.decryptData(JSON.parse(item.password), encryptionKey)
+                    }
+                }));
+
+                callback(result);
             });
         })
     }
