@@ -55,11 +55,17 @@ class DatabaseHandler {
         this.db.transaction((tx: SQLite.Transaction) => { 
             tx.executeSql('SELECT * FROM Creds ORDER BY id DESC', [], async (tx: SQLite.Transaction, results: SQLite.ResultSet) => {
                 const result = await Promise.all((results.rows.raw()).map(async (item: any) => {
+                    let passCipher: any;
+                    try{
+                        passCipher = JSON.parse(item.password);
+                    } catch {
+                        passCipher = {};
+                    }
                     return {
                         id: item.id,
                         url: item.url,
                         username: item.username,
-                        password: await Encryption.decryptData(JSON.parse(item.password), encryptionKey)
+                        password: await Encryption.decryptData(passCipher, encryptionKey)
                     }
                 }));
 
@@ -73,11 +79,17 @@ class DatabaseHandler {
         this.db.transaction((tx: SQLite.Transaction) => {   
             tx.executeSql('SELECT * FROM Creds WHERE url LIKE ? OR username LIKE ?', ['%'+query+'%', '%'+query+'%'], async (tx: SQLite.Transaction, results: SQLite.ResultSet) => {
                 const result = await Promise.all((results.rows.raw()).map(async (item: any) => {
+                    let passCipher: any;
+                    try{
+                        passCipher = JSON.parse(item.password);
+                    } catch {
+                        passCipher = {};
+                    }
                     return {
                         id: item.id,
                         url: item.url,
                         username: item.username,
-                        password: await Encryption.decryptData(JSON.parse(item.password), encryptionKey)
+                        password: await Encryption.decryptData(passCipher, encryptionKey)
                     }
                 }));
 

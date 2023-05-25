@@ -41,7 +41,7 @@ type AddData = {
     password: string;
 }
 
-function Home({navigation}:{navigation:any}): JSX.Element {
+function Home({ navigation }: { navigation: any }): JSX.Element {
     const [visible, setVisible] = React.useState<boolean>(false);
     const [deleteVisible, setDeleteVisible] = React.useState<boolean>(false);
     const [deleteId, setDeleteId] = React.useState<number>(-1);
@@ -163,7 +163,7 @@ function Home({navigation}:{navigation:any}): JSX.Element {
                     {/* <Icon color={customTheme.colors.primary} name="logout" size={24} style={styles.appBarIcon} /> */}
                     <IconButton iconColor={customTheme.colors.primary} icon="logout" size={24} onPress={() => {
                         navigation.dispatch(StackActions.popToTop())
-                     }} />
+                    }} />
 
                 </Appbar>
                 <Searchbar onChangeText={filterCredential} style={styles.searchBar} placeholder='Search for credentials' value={searchText} />
@@ -186,47 +186,46 @@ function Home({navigation}:{navigation:any}): JSX.Element {
                     onPress={() => showModal()}
                 />
                 {/* Add modal */}
-                <Portal>
-                    <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.containerStyle}>
-                        <TextInput style={styles.containerInput} onChangeText={setUrlText} value={addData.url} placeholder='Enter URL' label="URL" />
-                        <TextInput style={styles.containerInput} onChangeText={setUserNameText} value={addData.username} placeholder='Enter Username' label="Username" />
-                        <View style={styles.passFieldContainer}>
-                            <TextInput style={styles.passInput} onChangeText={setPasswordText} value={addData.password} placeholder='Enter Password' label="Password" secureTextEntry={visibleEye} />
-                            <IconButton style={styles.viewIcon} iconColor='black' icon={eyeIcon} size={24} onPress={() => viewPass()} />
-                        </View>
+                <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.containerStyle}>
+                    <TextInput autoCapitalize='none' autoCorrect={false} style={styles.containerInput} onChangeText={setUrlText} value={addData.url} placeholder='Enter URL' label="URL" />
+                    <TextInput autoCapitalize='none' autoCorrect={false} style={styles.containerInput} onChangeText={setUserNameText} value={addData.username} placeholder='Enter Username' label="Username" />
+                    <View style={styles.passFieldContainer}>
+                        <TextInput autoCapitalize='none' autoCorrect={false} style={styles.passInput} onChangeText={setPasswordText} value={addData.password} placeholder='Enter Password' label="Password" secureTextEntry={visibleEye} />
+                        <IconButton style={styles.viewIcon} iconColor='black' icon={eyeIcon} size={24} onPress={() => viewPass()} />
+                    </View>
 
-                        <Button buttonColor={customTheme.colors.inversePrimary} style={styles.containerBtn} mode="contained" onPress={async () => await addCredential(addData.url, addData.username, addData.password)}> Add </Button>
-                        <Button style={styles.containerBtn} mode="contained" onPress={() => hideModal()}> Cancel </Button>
-                    </Modal>
-                    <Notification
-                        visible={snackbarVisible}
-                        onDismiss={() => setSnackbarVisible(false)}
-                        message='No field can be empty'
-                    />
-                </Portal>
+                    <Button buttonColor={customTheme.colors.inversePrimary} style={styles.containerBtn} mode="contained" onPress={async () => await addCredential(addData.url, addData.username, addData.password)}> Add </Button>
+                    <Button style={styles.containerBtn} mode="contained" onPress={() => hideModal()}> Cancel </Button>
+                </Modal>
+                <Notification
+                    visible={snackbarVisible}
+                    onDismiss={() => setSnackbarVisible(false)}
+                    message='No field can be empty'
+                />
+
                 {/* Delete modal */}
-                <Portal>
-                    <Modal visible={deleteVisible} onDismiss={hideDeleteModal} contentContainerStyle={styles.containerStyle}>
-                        <Text style={{ fontSize: 15, margin: 5 }} variant='labelSmall'>Are you sure you want to delete credential?</Text>
-                        <Button buttonColor={customTheme.colors.inversePrimary} style={styles.containerBtn} mode="contained" onPress={() => deleteCredential()}> Delete </Button>
-                        <Button buttonColor={customTheme.colors.secondary} style={styles.containerBtn} mode="contained" onPress={() => hideDeleteModal()}> Cancel </Button>
-                    </Modal>
-                </Portal>
+
+                <Modal visible={deleteVisible} onDismiss={hideDeleteModal} contentContainerStyle={styles.containerStyle}>
+                    <Text style={{ fontSize: 15, margin: 5 }} variant='labelSmall'>Are you sure you want to delete credential?</Text>
+                    <Button buttonColor={customTheme.colors.inversePrimary} style={styles.containerBtn} mode="contained" onPress={() => deleteCredential()}> Delete </Button>
+                    <Button buttonColor={customTheme.colors.secondary} style={styles.containerBtn} mode="contained" onPress={() => hideDeleteModal()}> Cancel </Button>
+                </Modal>
+
 
                 {/* Edit modal */}
-                <Portal>
-                    <Modal visible={editVisible} onDismiss={hideEditModal} contentContainerStyle={styles.containerStyle}>
-                        <TextInput style={styles.containerInput} onChangeText={setUrlEditText} value={editData.url} placeholder='Enter URL' label="URL" />
-                        <TextInput style={styles.containerInput} onChangeText={setUsernameEditText} value={editData.username} placeholder='Enter Username' label="Username" />
-                        <View style={styles.passFieldContainer}>
-                            <TextInput style={styles.passInput} onChangeText={setPasswordEditText} value={editData.password} placeholder='Enter Password' label="Password" secureTextEntry={visibleEye} />
-                            <IconButton style={styles.viewIcon} iconColor='black' icon={eyeIcon} size={24} onPress={() => viewPass()} />
-                        </View>
 
-                        <Button buttonColor={customTheme.colors.inversePrimary} style={styles.containerBtn} mode="contained" onPress={async () => await editCredential()}> Save </Button>
-                        <Button style={styles.containerBtn} mode="contained" onPress={() => hideEditModal()}> Cancel </Button>
-                    </Modal>
-                </Portal>
+                <Modal visible={editVisible} onDismiss={hideEditModal} contentContainerStyle={styles.containerStyle}>
+                    <TextInput autoCapitalize='none' autoCorrect={false} style={styles.containerInput} onChangeText={setUrlEditText} value={editData.url} placeholder='Enter URL' label="URL" />
+                    <TextInput autoCapitalize='none' autoCorrect={false} style={styles.containerInput} onChangeText={setUsernameEditText} value={editData.username} placeholder='Enter Username' label="Username" />
+                    <View style={styles.passFieldContainer}>
+                        <TextInput autoCapitalize='none' autoCorrect={false} style={styles.passInput} onChangeText={setPasswordEditText} value={editData.password} placeholder='Enter Password' label="Password" secureTextEntry={visibleEye} />
+                        <IconButton style={styles.viewIcon} iconColor='black' icon={eyeIcon} size={24} onPress={() => viewPass()} />
+                    </View>
+
+                    <Button buttonColor={customTheme.colors.inversePrimary} style={styles.containerBtn} mode="contained" onPress={async () => await editCredential()}> Save </Button>
+                    <Button style={styles.containerBtn} mode="contained" onPress={() => hideEditModal()}> Cancel </Button>
+                </Modal>
+
             </SafeAreaView>
 
         </PaperProvider >
