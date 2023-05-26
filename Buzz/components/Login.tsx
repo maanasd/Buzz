@@ -72,6 +72,9 @@ function Login({ navigation }: Props): JSX.Element {
                 <View style={styles.loginContainer}>
                     <Text variant='headlineMedium' style={styles.buzzTitle}>Buzz Password Manager</Text>
                     <Image style={styles.displayLogo} source={require('../image/Buzz-logo.png')} />
+                    <View style={btnText === 'Access'? {display:'none'}:{display:"flex"}}>
+                        <Text variant='bodyLarge' style={styles.buzzTitle}>Make note of your master key. You can't change it later.</Text>
+                    </View>
                     <TextInput value={masterKey} onChangeText={setMasterKey} placeholder='Enter Master Key' label="Master Key" secureTextEntry={true} />
                     <Button style={styles.loginBtn} mode='contained' onPress={() => handleAccess(navigation, masterKey)}>{btnText}</Button>
                 </View>
@@ -84,14 +87,15 @@ function Login({ navigation }: Props): JSX.Element {
 }
 const styles = StyleSheet.create({
 
-    buzzTitle:{
+    buzzTitle: {
         color: customTheme.colors.primary,
-        alignSelf: 'center', 
+        alignSelf: 'center',
+        margin: 5
     },
     loginContainer: {
         margin: 20
     },
-    displayLogo:{
+    displayLogo: {
         width: 200,
         height: 200,
         margin: 20,
