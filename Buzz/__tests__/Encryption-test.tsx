@@ -12,6 +12,5 @@ it('encrypts data', async ()=>{
     expect(encryptedData).toBeDefined();
     expect(encryptedData.cipher).toBeDefined();
     expect(encryptedData.iv).toBeDefined();
-    console.log(encryptedData);
     expect(encryptedData.cipher).not.toEqual('data');
 })

@@ -1,10 +1,13 @@
 import React, { useEffect } from 'react';
-import { Button, TextInput, Provider as PaperProvider, Text } from "react-native-paper";
+import { Button, TextInput, Provider as PaperProvider, Text, ProgressBar, MD3Colors } from "react-native-paper";
 import {
     View,
     SafeAreaView,
     StyleSheet,
-    Image
+    ScrollView,
+    Image,
+    KeyboardAvoidingView, Platform, TouchableWithoutFeedback,
+    Keyboard
 } from 'react-native';
 import customTheme from '../buzzTheme';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -33,15 +36,26 @@ function Login({ navigation }: Props): JSX.Element {
     const [btnText, setBtnText] = React.useState<string>('Create Access');
     const [masterKey, setMasterKey] = React.useState<string>('');
     const [visible, setVisible] = React.useState<boolean>(false);
+    const [strengthLabel, setStrengthLabel] = React.useState<string>('Weak');
+    const [strengthValue, setStrengthValue] = React.useState<number>(0);
+    const [strengthColor, setStrengthColor] = React.useState<any>(MD3Colors.error50);
+    const [notificationMsg, setNotificationMsg] = React.useState<string>('');
+    const keyboardVerticalOffset = Platform.OS === 'ios' ? 40 : 60
     function handleAccess(navigation: LoginScreenNavigationProp, key: string) {
-        MasterKey.getMasterKey().then((key) => {
+        MasterKey.getMasterKey().then(async (key) => {
+            if (masterKey === '') {
+                setNotificationMsg('Please enter a master key');
+                setVisible(true);
+                return;
+            }
             if (key === null) {
-                MasterKey.storeMasterKey(masterKey);
+                await MasterKey.storeMasterKey(masterKey);
                 // generate encryption key
                 Encryption.generateKey(masterKey, md5(masterKey), 1000, 256).then((aesKey) => {
                     // store encryption key
                     Encryption.storeKey(aesKey);
                 });
+                setBtnText('Access');
                 navigation.navigate('Home');
             } else if (key === md5(masterKey)) {
                 Encryption.generateKey(masterKey, md5(masterKey), 1000, 256).then((aesKey) => {
@@ -50,9 +64,28 @@ function Login({ navigation }: Props): JSX.Element {
                 });
                 navigation.navigate('Home');
             } else {
+                setNotificationMsg('Incorrect master key');
                 setVisible(true);
             }
         })
+    }
+    function handleMasterKeyUpdate(key: string) {
+        setMasterKey(key);
+        const score = MasterKey.estimateMasterKeyStrength(key);
+        if (score === 0) {
+            setStrengthLabel('Weak');
+            setStrengthValue(0.25);
+            setStrengthColor("red");
+        } else if (score === 1 || score === 2) {
+            setStrengthLabel('Fair');
+            setStrengthValue(0.5);
+            setStrengthColor("orange");
+        } else {
+            setStrengthLabel('Strong');
+            setStrengthValue(1);
+            setStrengthColor("green");
+        }
+
     }
     useEffect(() => {
         // if no access key found set button text to Create Access
@@ -68,41 +101,54 @@ function Login({ navigation }: Props): JSX.Element {
     }, [])
     return (
         <PaperProvider theme={customTheme}>
-            <SafeAreaView>
-                <View style={styles.loginContainer}>
-                    <Text variant='headlineMedium' style={styles.buzzTitle}>Buzz Password Manager</Text>
-                    <Image style={styles.displayLogo} source={require('../image/Buzz-logo.png')} />
-                    <View style={btnText === 'Access'? {display:'none'}:{display:"flex"}}>
-                        <Text variant='bodyLarge' style={styles.buzzTitle}>Make note of your master key. You can't change it later.</Text>
+            <KeyboardAvoidingView behavior={'position'} keyboardVerticalOffset={keyboardVerticalOffset}>
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                    <View style={styles.loginContainer}>
+                        <Text variant='headlineMedium' style={styles.buzzTitle}>Buzz Password Manager</Text>
+                        <Image style={styles.displayLogo} source={require('../image/Buzz-logo.png')} />
+                        <View style={btnText === 'Access' ? { display: 'none' } : { display: "flex" }}>
+                            <Text variant='bodyLarge' style={styles.buzzTitle}>Make note of your master key. You can't change it later.</Text>
+                        </View>
+                        <TextInput value={masterKey} onChangeText={handleMasterKeyUpdate} placeholder='Enter Master Key' label="Master Key" secureTextEntry={true} />
+                        {
+                            (btnText === "Create Access") && <View style={styles.passStrength}>
+                                <ProgressBar progress={strengthValue} color={strengthColor} />
+                                <Text variant='bodyLarge' style={styles.buzzTitle}>Key strength is {strengthLabel}</Text>
+                            </View>
+
+                        }
+
+                        <Button style={styles.loginBtn} mode='contained' onPress={() => handleAccess(navigation, masterKey)}>{btnText}</Button>
                     </View>
-                    <TextInput value={masterKey} onChangeText={setMasterKey} placeholder='Enter Master Key' label="Master Key" secureTextEntry={true} />
-                    <Button style={styles.loginBtn} mode='contained' onPress={() => handleAccess(navigation, masterKey)}>{btnText}</Button>
-                </View>
-
-            </SafeAreaView>
-            <Notification message='Incorrect Master Key' visible={visible} onDismiss={() => setVisible(false)} />
+                </TouchableWithoutFeedback>
+            </KeyboardAvoidingView>
+            <Notification message={notificationMsg} visible={visible} onDismiss={() => setVisible(false)} />
         </PaperProvider>
-
     )
 }
 const styles = StyleSheet.create({
-
+    passStrength: {
+        width: '50%',
+        alignSelf: 'center',
+        margin: 10
+    },
     buzzTitle: {
         color: customTheme.colors.primary,
         alignSelf: 'center',
         margin: 5
     },
     loginContainer: {
+
         margin: 20
     },
     displayLogo: {
         width: 200,
         height: 200,
-        margin: 20,
+        margin: 10,
         alignSelf: 'center'
     },
     loginBtn: {
-        margin: 20,
+        margin: 10,
         backgroundColor: customTheme.colors.inversePrimary
     }
 });

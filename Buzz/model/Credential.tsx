@@ -46,7 +46,7 @@ class DatabaseHandler {
     insertData(url: string, username: string, password: string) {
         this.db.transaction((tx: SQLite.Transaction) => {
             tx.executeSql('INSERT INTO Creds (url, username, password) VALUES (?,?,?)',
-                [url, username, password], this.errorCB, this.successCB);
+                [url, username, password]);
         });
     }
 
@@ -55,17 +55,21 @@ class DatabaseHandler {
         this.db.transaction((tx: SQLite.Transaction) => { 
             tx.executeSql('SELECT * FROM Creds ORDER BY id DESC', [], async (tx: SQLite.Transaction, results: SQLite.ResultSet) => {
                 const result = await Promise.all((results.rows.raw()).map(async (item: any) => {
-                    let passCipher: any;
+                    let passCipher: {iv: string, cipher: string};
+                    let pass:string;
                     try{
                         passCipher = JSON.parse(item.password);
+                        pass = await Encryption.decryptData(passCipher, encryptionKey);
                     } catch {
-                        passCipher = {};
+                        passCipher = {iv: '', cipher: ''};
+                        pass = ''
                     }
+                    
                     return {
                         id: item.id,
                         url: item.url,
                         username: item.username,
-                        password: await Encryption.decryptData(passCipher, encryptionKey)
+                        password: pass
                     }
                 }));
 
@@ -79,17 +83,20 @@ class DatabaseHandler {
         this.db.transaction((tx: SQLite.Transaction) => {   
             tx.executeSql('SELECT * FROM Creds WHERE url LIKE ? OR username LIKE ?', ['%'+query+'%', '%'+query+'%'], async (tx: SQLite.Transaction, results: SQLite.ResultSet) => {
                 const result = await Promise.all((results.rows.raw()).map(async (item: any) => {
-                    let passCipher: any;
+                    let passCipher: {iv: string, cipher: string};
+                    let pass: string;
                     try{
                         passCipher = JSON.parse(item.password);
+                        pass = await Encryption.decryptData(passCipher, encryptionKey);
                     } catch {
-                        passCipher = {};
+                        passCipher = {iv: '', cipher: ''};
+                        pass = ''
                     }
                     return {
                         id: item.id,
                         url: item.url,
                         username: item.username,
-                        password: await Encryption.decryptData(passCipher, encryptionKey)
+                        password: pass
                     }
                 }));
 
