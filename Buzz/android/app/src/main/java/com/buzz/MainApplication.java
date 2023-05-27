@@ -1,4 +1,4 @@
-package com.buzz;
+package com.buzz.azimi;
 
 import android.app.Application;
 import com.facebook.react.PackageList;

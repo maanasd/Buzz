@@ -1,4 +1,4 @@
-package com.buzz;
+package com.buzz.azimi;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
