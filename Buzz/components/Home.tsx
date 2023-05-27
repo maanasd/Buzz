@@ -109,11 +109,14 @@ function Home({ navigation }: { navigation: any }): JSX.Element {
 
     function filterCredential(text: string): void {
         setSearchText(text);
-        if (text === '')
-            db.getAllData((data: any) => setPassData(data), encryptionKey);
-        else {
-            db.filterData(text, (data: any) => setPassData(data), encryptionKey);
-        }
+        Encryption.getKey().then(async (key) => {
+            if (text === '')
+                db.getAllData((data: any) => setPassData(data), key!);
+            else {
+                db.filterData(text, (data: any) => setPassData(data), key!);
+            }
+        });
+
 
     }
 
@@ -122,10 +125,14 @@ function Home({ navigation }: { navigation: any }): JSX.Element {
             setSnackbarVisible(true);
             return;
         }
-        const encryptedPassword = JSON.stringify(await Encryption.encryptData(editData.password, encryptionKey));
-        db.updateData(editData.id, editData.url, editData.username, encryptedPassword);
-        filterCredential(searchText);
-        hideEditModal();
+        Encryption.getKey().then(async (key) => {
+            const encryptedPassword = JSON.stringify(await Encryption.encryptData(editData.password, key!));
+            db.updateData(editData.id, editData.url, editData.username, encryptedPassword);
+            filterCredential(searchText);
+            hideEditModal();
+        })
+
+
     }
 
     async function addCredential(url: string, username: string, password: string): Promise<void> {
@@ -133,13 +140,13 @@ function Home({ navigation }: { navigation: any }): JSX.Element {
             setSnackbarVisible(true);
             return;
         }
-        // console.log(encryptionKey);
-        const encryptedPassword = JSON.stringify(await Encryption.encryptData(password, encryptionKey));
-        // console.log(encryptedPassword);
-        db.insertData(url, username, encryptedPassword);
-        filterCredential(searchText);
-        hideModal();
-        setAddData({ url: '', username: '', password: '' });
+        Encryption.getKey().then(async (key) => {
+            const encryptedPassword: string = JSON.stringify(await Encryption.encryptData(password, key!));
+            db.insertData(url, username, encryptedPassword);
+            filterCredential(searchText);
+            hideModal();
+            setAddData({ url: '', username: '', password: '' });
+        });
     }
 
     function setUrlText(text: string) {
