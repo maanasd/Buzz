@@ -27,7 +27,6 @@ import Notification from './Notification';
 import { StackActions } from '@react-navigation/routers';
 import Encryption from '../model/Encryption';
 
-
 type EditData = {
     url: string;
     username: string;
@@ -39,6 +38,17 @@ type AddData = {
     url: string;
     username: string;
     password: string;
+}
+
+// This function generates a random password
+function generatePasswordString(): string {
+    const length = 16;
+    const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]\:;?><,./-=';
+    let retVal = '';
+    for (let i = 0, n = charset.length; i < length; ++i) {
+        retVal += charset.charAt(Math.floor(Math.random() * n));
+    }
+    return retVal;
 }
 
 function Home({ navigation }: { navigation: any }): JSX.Element {
@@ -159,6 +169,11 @@ function Home({ navigation }: { navigation: any }): JSX.Element {
         setAddData({ ...addData, password: text });
     }
 
+    function generatePassword(){
+        const password = generatePasswordString();
+        setAddData({...addData, password: password});
+    }
+
     return (
         <PaperProvider theme={customTheme}>
             <SafeAreaView style={styles.container}>
@@ -199,6 +214,7 @@ function Home({ navigation }: { navigation: any }): JSX.Element {
                     <View style={styles.passFieldContainer}>
                         <TextInput autoCapitalize='none' autoCorrect={false} style={styles.passInput} onChangeText={setPasswordText} value={addData.password} placeholder='Enter Password' label="Password" secureTextEntry={visibleEye} />
                         <IconButton style={styles.viewIcon} iconColor='black' icon={eyeIcon} size={24} onPress={() => viewPass()} />
+                        <IconButton style={styles.generateIcon} iconColor='black' icon={'refresh'} size={24} onPress={generatePassword} />
                     </View>
 
                     <Button buttonColor={customTheme.colors.inversePrimary} style={styles.containerBtn} mode="contained" onPress={async () => await addCredential(addData.url, addData.username, addData.password)}> Add </Button>
@@ -282,6 +298,12 @@ const styles = StyleSheet.create({
     },
     viewIcon: {
         margin: 0,
+        marginLeft: -5,
+        marginTop: 10,
+    },
+    generateIcon: {
+        marginRight: 40,
+        marginLeft: -10,
         marginTop: 10,
     },
     passInput: {

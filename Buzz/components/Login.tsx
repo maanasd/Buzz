@@ -48,7 +48,7 @@ function Login({ navigation }: Props): JSX.Element {
                 setVisible(true);
                 return;
             }
-            if (key === null) {
+            if (key === null || key === undefined) {
                 await MasterKey.storeMasterKey(masterKey);
                 // generate encryption key
                 Encryption.generateKey(masterKey, md5(masterKey), 1000, 256).then((aesKey) => {
@@ -93,7 +93,7 @@ function Login({ navigation }: Props): JSX.Element {
         // if no access key found set button text to Create Access
         // else set button text to Access
         MasterKey.getMasterKey().then((key) => {
-            if (key === null) {
+            if (key === null || key === undefined) {
                 setBtnText('Create Access');
             } else {
                 setBtnText('Access');
