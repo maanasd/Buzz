@@ -26,7 +26,7 @@ import DatabaseHandler from '../model/Credential';
 import Notification from './Notification';
 import { StackActions } from '@react-navigation/routers';
 import Encryption from '../model/Encryption';
-
+import Clipboard from '@react-native-clipboard/clipboard';
 type EditData = {
     url: string;
     username: string;

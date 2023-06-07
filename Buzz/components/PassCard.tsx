@@ -2,6 +2,8 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Card, Title, Paragraph, TextInput, IconButton, Modal, Text, Button } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Clipboard from '@react-native-clipboard/clipboard';
+import Notification from './Notification';
 type Props = {
 
     url: string;
@@ -80,6 +82,9 @@ function PassCard(props: Props): JSX.Element {
         setEyeIcon(eyeIcon === 'eye'? 'eye-off': 'eye');
         setVisible(!visible);
     }
+    function copyPass(pass: string) {
+        Clipboard.setString(pass);
+    }
     return (
         <>
             <Card style={styles.container}>
@@ -103,7 +108,7 @@ function PassCard(props: Props): JSX.Element {
                                 />
                                 {/* Use Icon button */}
                                 <IconButton style={styles.viewIcon} iconColor='black' icon={eyeIcon} size={24} onPress={() => viewPass() } />
-
+                                <IconButton style={styles.viewIcon} iconColor='black' icon="content-copy" size={24} onPress={() => copyPass(props.password)} />
                             </View>
 
                         </View>
