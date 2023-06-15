@@ -56,14 +56,14 @@ function Login({ navigation }: Props): JSX.Element {
                     Encryption.storeKey(aesKey);
                 });
                 setBtnText('Access');
-                navigation.navigate('Home');
+                navigation.navigate('HomeTabs');
                 setMasterKey('');
             } else if (key === md5(masterKey)) {
                 Encryption.generateKey(masterKey, md5(masterKey), 1000, 256).then((aesKey) => {
                     // store encryption key
                     Encryption.storeKey(aesKey);
                 });
-                navigation.navigate('Home');
+                navigation.navigate('HomeTabs');
                 setMasterKey('');
             } else {
                 setNotificationMsg('Incorrect master key');

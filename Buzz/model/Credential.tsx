@@ -111,10 +111,11 @@ class DatabaseHandler {
         });
     }
 
-    updateData(id: number, url: string, username: string, password: string) {
+    updateData(id: number, url: string, username: string, password: string, callback: () => void) {
         this.db.transaction((tx: SQLite.Transaction) => {
             tx.executeSql('UPDATE Creds SET url=?, username=?, password=? WHERE id=?',
                 [url, username, password, id], this.errorCB, this.successCB);
+            callback();
         });
     }
 
