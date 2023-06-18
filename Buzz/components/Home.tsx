@@ -27,6 +27,7 @@ import Notification from './Notification';
 import { StackActions } from '@react-navigation/routers';
 import Encryption from '../model/Encryption';
 import Clipboard from '@react-native-clipboard/clipboard';
+import isUrl from 'is-url';
 type EditData = {
     url: string;
     username: string;
@@ -67,6 +68,7 @@ function Home({ navigation }: { navigation: any }): JSX.Element {
     const [visibleEye, setVisibleEye] = React.useState<boolean>(true);
     const [encryptionKey, setEncryptionKey] = React.useState<string>('');
     const db = new DatabaseHandler();
+    const [urlError, setUrlError] = React.useState<string>('');
     useEffect(() => {
         Encryption.getKey().then((key) => {
             setEncryptionKey(key!);
@@ -117,6 +119,13 @@ function Home({ navigation }: { navigation: any }): JSX.Element {
         setVisibleEye(!visibleEye);
     }
 
+    const validateUrl = (url: string) => {
+        if (isUrl(url)||url=='') {
+          setUrlError('');
+        } else {
+          setUrlError('Notice the entered URL is invalid');
+        }
+      };      
 
     function filterCredential(text: string): void {
         setSearchText(text);
@@ -205,7 +214,8 @@ function Home({ navigation }: { navigation: any }): JSX.Element {
                 />
                 {/* Add modal */}
                 <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.containerStyle}>
-                    <TextInput autoCapitalize='none' autoCorrect={false} style={styles.containerInput} onChangeText={setUrlText} value={addData.url} placeholder='Enter URL' label="URL" />
+                    <TextInput autoCapitalize='none' autoCorrect={false} style={styles.containerInput} onChangeText={(text) => {setUrlText(text);validateUrl(text);}} value={addData.url} placeholder='Enter URL' label="URL" />
+                    {urlError !== '' && <Text style={styles.errorMessage}>{urlError}</Text>}
                     <TextInput autoCapitalize='none' autoCorrect={false} style={styles.containerInput} onChangeText={setUserNameText} value={addData.username} placeholder='Enter Username' label="Username" />
                     <View style={styles.passFieldContainer}>
                         <TextInput autoCapitalize='none' autoCorrect={false} style={styles.passInput} onChangeText={setPasswordText} value={addData.password} placeholder='Enter Password' label="Password" secureTextEntry={visibleEye} />
